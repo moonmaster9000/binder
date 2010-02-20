@@ -1,0 +1,30 @@
+= Installation 
+
+  # gem install binder
+
+= Use
+  
+  # irb
+  >> require 'binder'
+    ==> true
+    
+  >> def speak
+  >>   "why should i?"
+  >> end
+    ==> nil
+
+  >> class Dog
+  >>   def speak
+  >>       "ruff!"
+  >>     end
+  >> end
+    ==> nil
+
+  >> command = proc { speak }
+    ==> #<Proc:0x012c6a04@(irb):28>
+
+  >> command.call
+    ==> "why should i?"  
+
+  >> command.bind_to(Dog.new).call
+    ==> "ruff!"
