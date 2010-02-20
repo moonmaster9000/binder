@@ -1,0 +1,5 @@
+v0.0.2
+  adds the #bind class method to Object
+
+v0.0.1
+  adds the #bind_to instance method to Proc

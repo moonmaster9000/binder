@@ -3,6 +3,13 @@
   # gem install binder
 
 = Use
+
+binder allows you to change the closure in which a proc is executed. This is helpful for anyone developing their own domain specific language in ruby. For more information about proc binding, check out this post I wrote which in turn inspired me to write this gem: http://moonmaster9000.tumblr.com/post/398991873/creating-cleaner-apis
+
+
+== Proc#bind_to
+
+The #bind_to method on a proc instance allows you to change the closure in which the proc is run:
   
   # irb
   >> require 'binder'
@@ -28,3 +35,96 @@
 
   >> command.bind_to(Dog.new).call
     ==> "ruff!"
+  
+
+== Object##bind
+
+binder also provides the "#bind" object class method to DRY up your DSL instance methodsmethods: 
+
+  >> class Dog
+  >>     bind :do_trick, :self
+  >>     
+  ?>       def speak
+  >>         "ruff!"
+  >>       end
+  >>   end
+    ==> nil
+  
+  >> Dog.new.do_trick { speak }
+    ==> "ruff!"
+    
+  >> class Cat
+  >>   bind :do_trick, Cat
+  >>   
+  ?>   class << self
+  >>     def speak
+  >>       "screw you"
+  >>     end
+  >>   end
+  >>   
+  ?>   def speak
+  >>     "bugger off"
+  >>   end
+  >> end
+    ==> nil
+    
+  >> Cat.new.do_trick { speak }
+    ==> "screw you"
+  
+  >> class Kitten
+  >>   bind :do_trick, :mother
+  >>   
+  ?>   def initialize(mom)
+  >>     @mother = mom
+  >>   end
+  >> end 
+    ==> nil
+  
+  >> Kitten.new(Cat).do_trick { speak }
+    ==> "screw you"
+  
+  >> Kitten.new(Cat.new).do_trick { speak }
+    ==> "bugger off"
+  
+  >> Kitten.new(Dog.new).do_trick { speak }
+    ==> "ruff!"
+  
+== Object##bind_class_method
+  
+Whereas the Object##bind method created instance methods, Object##bind_class_method creates class methods:
+
+  >> class Cat
+  >>   bind :do_trick, Cat
+  >> 
+  ?>   class << self
+  >>     def speak
+  >>         "screw you"
+  >>       end
+  >>   end
+  >>   
+  ?>   def speak
+  >>     "bugger off"
+  >>   end
+  >> end
+    ==> nil
+  
+  >> class Lion
+  >>   bind_class_method :tame, :self
+  >>   bind_class_method :do_trick, :child
+  >>   class << self
+  >>     def down_kitty
+  >>       "meow"
+  >>     end
+  >>     
+  ?>     def child
+  >>       @child ||= Cat
+  >>     end
+  >>   end
+  >> end
+    ==> nil
+     
+  >> Lion.tame {down_kitty}
+    ==> "meow"
+    
+  >> Lion.do_trick { speak }
+    ==> "screw you"
