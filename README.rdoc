@@ -39,30 +39,30 @@ The #bind_to method on a proc instance allows you to change the closure in which
 
 == Object##bind
 
-binder also provides the "#bind" object class method to DRY up your DSL instance methodsmethods: 
+binder also provides the "#bind" object class method to DRY up your DSL instance methods: 
 
   >> class Dog
-  >>     bind :do_trick, :self
+  >>   bind :do_trick, :self # binds to the instance of Dog
   >>     
-  ?>       def speak
-  >>         "ruff!"
-  >>       end
+  >>   def speak
+  >>     "ruff!"
   >>   end
+  >> end
     ==> nil
   
   >> Dog.new.do_trick { speak }
     ==> "ruff!"
     
   >> class Cat
-  >>   bind :do_trick, Cat
+  >>   bind :do_trick, :class # binds to Cat, not an instance of Cat
   >>   
-  ?>   class << self
+  >>   class << self
   >>     def speak
   >>       "screw you"
   >>     end
   >>   end
   >>   
-  ?>   def speak
+  >>   def speak
   >>     "bugger off"
   >>   end
   >> end
@@ -72,9 +72,9 @@ binder also provides the "#bind" object class method to DRY up your DSL instance
     ==> "screw you"
   
   >> class Kitten
-  >>   bind :do_trick, :mother
+  >>   bind :do_trick, :mother # binds to @mother instance variable
   >>   
-  ?>   def initialize(mom)
+  >>   def initialize(mom)
   >>     @mother = mom
   >>   end
   >> end 
@@ -94,36 +94,37 @@ binder also provides the "#bind" object class method to DRY up your DSL instance
 Whereas the Object##bind method created instance methods, Object##bind_class_method creates class methods:
 
   >> class Cat
-  >>   bind :do_trick, Cat
+  >>   bind :do_trick, :class # binds to Cat class, not an instance of Cat
   >> 
-  ?>   class << self
+  >>   class << self
   >>     def speak
-  >>         "screw you"
-  >>       end
+  >>       "screw you"
+  >>     end
   >>   end
   >>   
-  ?>   def speak
+  >>   def speak
   >>     "bugger off"
   >>   end
   >> end
     ==> nil
   
   >> class Lion
-  >>   bind_class_method :tame, :self
-  >>   bind_class_method :do_trick, :child
+  >>   bind_class_method :tame, :self # binds to Lion, since "self" will be evaluated in the context
+  >>                                  # of a class method
+  >>   bind_class_method :do_trick, :child # binds to value returned by method "child"
   >>   class << self
   >>     def down_kitty
   >>       "meow"
   >>     end
   >>     
-  ?>     def child
+  >>     def child
   >>       @child ||= Cat
   >>     end
   >>   end
   >> end
     ==> nil
      
-  >> Lion.tame {down_kitty}
+  >> Lion.tame { down_kitty }
     ==> "meow"
     
   >> Lion.do_trick { speak }

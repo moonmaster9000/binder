@@ -1,43 +1,44 @@
 class Object
   class << self
-    def bind(method_name, closure)
-      if !closure.kind_of?(Symbol)
-        closure = closure.to_s
-      else   
-        closure = closure == :self ? "self" : "@#{closure}"
-      end
-      
-      self.class_eval do
-        eval(
-          "
+    def bind_in_context(method_name, closure, eval_context=:class_eval)
+      raise ArgumentError, "You may only pass symbols to #bind and #bind_class_method" unless closure.kind_of?(Symbol)
+      if closure == :self
+        self.send(eval_context) do
+          eval(
+            "
             def #{method_name}(&block)
-              raise ArgumentError, \"You must pass a block to ##{method_name}.\" unless block
-              block.bind_to(#{closure}).call
-            end
-          "
-        )
-      end
-    end
-    
-    def bind_class_method(method_name, closure)
-      if !closure.kind_of?(Symbol)
-        closure = closure.to_s
-      else   
-        closure = closure == :self ? "self" : "#{closure}"
-      end
-      
-      self.class_eval do
-        eval(
-          "
-            class << self
-              def #{method_name}(&block)
-                raise ArgumentError, \"You must pass a block to ##{method_name}.\" unless block
-                block.bind_to(#{closure}).call
+              if block
+                block.bind_to(self).call
               end
             end
-          "
-        )
-      end
+            "
+          )
+        end
+      else
+        self.send(eval_context) do
+          eval(
+            "
+            def #{method_name}(&block)
+              if block
+                if self.respond_to?(:#{closure})
+                  block.bind_to(self.#{closure}).call
+                elsif @#{closure}
+                  block.bind_to(@#{closure}).call
+                else
+                  block.bind_to(self.#{closure}).call
+                end
+              end
+            end
+            "
+          )
+        end
+      end      
+    end
+    
+    alias_method :bind, :bind_in_context
+    
+    def bind_class_method(method_name, closure)
+      bind_in_context method_name, closure, :instance_eval
     end
   end
 end

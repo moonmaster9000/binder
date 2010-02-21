@@ -3,6 +3,12 @@ require 'spec_helper'
 describe Object do
   describe "#bind" do
     it "should create a new instance method that evaluates the block passed it within the requested closure" do
+      proc do
+        class Platypus
+          bind :do_trick, "invalid argument"
+        end
+      end.should raise_error(ArgumentError, "You may only pass symbols to #bind and #bind_class_method")
+      
       class Dog
         bind :do_trick, :self
       
@@ -14,7 +20,7 @@ describe Object do
       Dog.new.do_trick { speak }.should == "ruff!"
     
       class Cat
-        bind :do_trick, Cat
+        bind :do_trick, :class
       
         class << self
           def speak
@@ -46,7 +52,7 @@ describe Object do
     describe "#bind_class_method" do
       it "should create a class method responder that binds to either a new class or the return value of a class method" do
         class Cat
-          bind :do_trick, Cat
+          bind :do_trick, :class
 
           class << self
             def speak
