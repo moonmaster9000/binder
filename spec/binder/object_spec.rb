@@ -1,7 +1,30 @@
 require 'spec_helper'
 
 describe Object do
-  describe "#bind" do
+  describe "#tell" do
+    it "should run the given block or proc inside the requested object closure" do
+      class Baby
+        def say_dada
+          "waaaa"
+        end
+      end
+      
+      Object.new.tell(Baby.new) { say_dada }.should == "waaaa"
+      Object.tell(Baby.new) { say_dada }.should == "waaaa"
+      tell(Baby.new) { say_dada }.should == "waaaa"
+      
+      tell Baby.new, :to do
+        say_dada
+      end
+
+      to_say_dada = proc { say_dada }      
+      Object.new.tell(Baby.new, to_say_dada).should == "waaaa"
+      Object.tell(Baby.new, to_say_dada).should == "waaaa"
+      tell(Baby.new, to_say_dada).should == "waaaa"
+    end
+  end
+  
+  describe "##bind" do
     it "should create a new instance method that evaluates the block passed it within the requested closure" do
       proc do
         class Platypus

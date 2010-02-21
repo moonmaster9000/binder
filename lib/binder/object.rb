@@ -1,5 +1,13 @@
 class Object
-  class << self
+  def tell(closure, relayed_message=nil, &message)
+    if relayed_message && relayed_message.kind_of?(Proc)
+      closure.instance_eval(&relayed_message)
+    elsif message 
+      closure.instance_eval(&message)
+    end
+  end
+  
+  class << self    
     def bind_in_context(method_name, closure, eval_context=:class_eval)
       raise ArgumentError, "You may only pass symbols to #bind and #bind_class_method" unless closure.kind_of?(Symbol)
       if closure == :self
