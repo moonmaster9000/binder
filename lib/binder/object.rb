@@ -4,9 +4,15 @@ class Object
       closure.instance_eval(&relayed_message)
     elsif message 
       closure.instance_eval(&message)
+    else
+      raise StandardError, "What is your command?"
     end
   end
   
+  alias ask tell
+  alias teach tell
+  alias beg tell
+    
   class << self    
     def bind_in_context(method_name, closure, eval_context=:class_eval)
       raise ArgumentError, "You may only pass symbols to #bind and #bind_class_method" unless closure.kind_of?(Symbol)
