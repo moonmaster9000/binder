@@ -32,43 +32,43 @@ The #bind_to method on a proc instance allows you to change the closure in which
   command.bind_to(Dog.new).call
   # ==> "ruff!"
   
-== Object#tell
+== Object#tell (or #ask, #beg, or #teach)
 
-The "tell" method is essentially short hand for an instance_eval on an object - it simply presents you with a more human readable way of using this language feature: 
+The "tell"/"ask"/"beg"/"teach" method is essentially short hand for an instance_eval on an object - it simply presents you with a more human readable way of using this language feature: 
 
   class Dog
     def speak
       puts "ruff!"
     end
   end
-  
+
   fido = Dog.new
-  
+
   fido.instance_eval do
     speak
   end
-  
+
   # ==> would print "ruff!"
-  
+
   tell fido do
     speak
   end
-  
+
   # or 
-  
-  tell fido { speak }
-  
+
+  tell(fido) { speak }
+
   # or
-  
-  tell fido, :to { speak }
-  
+
+  tell(fido, :to) { speak }
+
   # ==> would all print "ruff!" - and these are all equivalent to the instance eval above
-  
+
   commands = proc { speak }
-  
+
   fido.instance_eval(&commands) 
   # ==> would print "ruff"
-  
+
   tell fido, commands 
   # ==> would also print "ruff!"
 
