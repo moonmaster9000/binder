@@ -9,9 +9,9 @@ class Object
     end
   end
   
-  alias ask tell
-  alias teach tell
-  alias beg tell
+  alias_method :ask, :tell
+  alias_method :teach, :tell
+  alias_method :beg, :tell
     
   class << self    
     def bind_in_context(method_name, closure, eval_context=:class_eval)
