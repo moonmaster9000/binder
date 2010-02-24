@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Object do
-  describe "#tell/#ask/#teach/#beg" do
+  describe "#tell" do
     it "should run the given block or proc inside the requested object closure" do
       class Baby
         def say_dada
@@ -23,78 +23,7 @@ describe Object do
       tell(Baby.new, to_say_dada).should == "waaaa"
     end
   end
-  
-  describe "#ask" do
-    it "should run the given block or proc inside the requested object closure" do
-      class Baby
-        def say_dada
-          "waaaa"
-        end
-      end
-            
-      Object.new.ask(Baby.new) { say_dada }.should == "waaaa"
-      Object.ask(Baby.new) { say_dada }.should == "waaaa"
-      ask(Baby.new) { say_dada }.should == "waaaa"
-      
-      ask Baby.new, :to do
-        say_dada
-      end
 
-      to_say_dada = proc { say_dada }      
-      Object.new.ask(Baby.new, to_say_dada).should == "waaaa"
-      Object.ask(Baby.new, to_say_dada).should == "waaaa"
-      ask(Baby.new, to_say_dada).should == "waaaa"
-    end
-  end 
-  
-  describe "#teach" do
-    it "should run the given block or proc inside the requested object closure" do
-      class Baby
-        def say_dada
-          "waaaa"
-        end
-      end
-            
-      Object.new.teach(Baby.new) { say_dada }.should == "waaaa"
-      Object.teach(Baby.new) { say_dada }.should == "waaaa"
-      teach(Baby.new) { say_dada }.should == "waaaa"
-      
-      teach Baby.new, :to do
-        say_dada
-      end
-
-      to_say_dada = proc { say_dada }      
-      Object.new.teach(Baby.new, to_say_dada).should == "waaaa"
-      Object.teach(Baby.new, to_say_dada).should == "waaaa"
-      teach(Baby.new, to_say_dada).should == "waaaa"
-    end
-  end
-  
-  
-  describe "#beg" do
-    it "should run the given block or proc inside the requested object closure" do
-      class Baby
-        def say_dada
-          "waaaa"
-        end
-      end
-            
-      Object.new.beg(Baby.new) { say_dada }.should == "waaaa"
-      Object.beg(Baby.new) { say_dada }.should == "waaaa"
-      beg(Baby.new) { say_dada }.should == "waaaa"
-      
-      beg Baby.new, :to do
-        say_dada
-      end
-
-      to_say_dada = proc { say_dada }      
-      Object.new.beg(Baby.new, to_say_dada).should == "waaaa"
-      Object.beg(Baby.new, to_say_dada).should == "waaaa"
-      beg(Baby.new, to_say_dada).should == "waaaa"
-    end
-  end
-  
-  
   describe "##bind" do
     it "should create a new instance method that evaluates the block passed it within the requested closure" do
       proc do

@@ -8,10 +8,6 @@ class Object
       raise StandardError, "What is your command?"
     end
   end
-  
-  alias_method :ask, :tell
-  alias_method :teach, :tell
-  alias_method :beg, :tell
     
   class << self    
     def bind_in_context(method_name, closure, eval_context=:class_eval)

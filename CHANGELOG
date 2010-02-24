@@ -1,3 +1,6 @@
+v0.0.6
+ removing the "ask"/"teach"/"beg" methods (i may have gotten carried away :-) 
+
 v0.0.5
  getting tell method aliases (ask, teach, beg) working in 1.8.6
 
