@@ -70,9 +70,36 @@ To dry up the process of creating these methods, you can use the binder gem:
   end
 
 First, we passed to bind the name of the method that we wanted to pass our block to; the second
-argument represents the context in which we want our block evaluated. :self, in this case, you 
-represent the instance of the Dog that we're calling "do_tricks" on. We could have alternatively
+argument represents the context in which we want our block evaluated. :self, in this case,
+represents the instance of the Dog that we're calling "do_tricks" on. We could have alternatively
 passed a symbol representing an instance method or an instance variable. 
+
+If you wanted to bind class method instead of instance methods, you simply have to extend
+the singleton class: 
+
+  require 'binder'
+
+  class Dog
+    class << self
+      extend Binder
+      bind :do_tricks, :self
+
+      def speak
+        puts "ruff!"
+      end
+
+      def fetch
+        puts "fetching...."
+      end
+    end
+  end
+
+  Dog.do_tricks do
+    speak
+    fetch
+  end
+
+
 
 If you'd rather not have to extend all of your classes with "Binder" everytime you intend
 to use the "bind" class method, you can require 'binder/pervasive' instead. Note, however, that 
