@@ -8,7 +8,7 @@ describe Object do
         class Platypus
           bind :do_trick, "invalid argument"
         end
-      end.should raise_error(ArgumentError, "You may only pass symbols to #bind and #bind_class_method")
+      end.should raise_error(ArgumentError, "You may only pass symbols to #bind")
       
       class Dog
         bind :do_trick, :self

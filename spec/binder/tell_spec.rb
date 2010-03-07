@@ -1,3 +1,4 @@
+require 'spec_helper'
 require 'binder/tell'
 
 describe "Tell" do 

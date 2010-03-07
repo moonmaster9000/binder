@@ -1,3 +1,3 @@
 class Object
-  extend Bindery
+  extend Binder
 end

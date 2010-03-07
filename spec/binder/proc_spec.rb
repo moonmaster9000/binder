@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'binder/proc'
 
 describe Proc do
   describe "#bind_to" do

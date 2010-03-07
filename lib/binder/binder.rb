@@ -1,6 +1,7 @@
-module Bindery
+module Binder
   def bind(method_name, closure)
-    raise ArgumentError, "You may only pass symbols to #bind and #bind_class_method" unless closure.kind_of?(Symbol)
+    raise ArgumentError, "You may only pass symbols to #bind" unless closure.kind_of?(Symbol)
+    
     if closure == :self
       self.class_eval do
         eval(

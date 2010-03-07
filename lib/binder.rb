@@ -1,2 +1,2 @@
 require 'binder/proc'
-require 'binder/bindery'
+require 'binder/binder'

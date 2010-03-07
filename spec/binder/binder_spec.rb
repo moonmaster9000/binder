@@ -1,18 +1,18 @@
 require 'spec_helper'
 require 'binder'
 
-describe Bindery do
+describe Binder do
   describe "##bind" do
     it "should create a new instance method that evaluates the block passed it within the requested closure" do
       proc do
         class Platypus
-          extend Bindery
+          extend Binder
           bind :do_trick, "invalid argument"
         end
-      end.should raise_error(ArgumentError, "You may only pass symbols to #bind and #bind_class_method")
+      end.should raise_error(ArgumentError, "You may only pass symbols to #bind")
       
       class Dog
-        extend Bindery
+        extend Binder
         bind :do_trick, :self
       
         def speak
@@ -23,7 +23,7 @@ describe Bindery do
       Dog.new.do_trick { speak }.should == "ruff!"
     
       class Cat
-        extend Bindery
+        extend Binder
         bind :do_trick, :class
       
         class << self
@@ -40,7 +40,7 @@ describe Bindery do
       Cat.new.do_trick { speak }.should == "screw you"
     
       class Kitten
-        extend Bindery
+        extend Binder
         bind :do_trick, :mother
       
         def initialize(mom)
@@ -57,7 +57,7 @@ describe Bindery do
     describe "#bind in the singleton class" do
       it "should create a class method responder that binds to either a new class or the return value of a class method" do
         class Cat
-          extend Bindery
+          extend Binder
           bind :do_trick, :class
 
           class << self
@@ -73,7 +73,7 @@ describe Bindery do
         
         class Lion
           class << self
-            extend Bindery
+            extend Binder
             bind :tame, :self
             bind :do_trick, :child
           
