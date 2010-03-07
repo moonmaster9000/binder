@@ -1,18 +1,110 @@
+= Motivation
+
+If you're tired of creating APIs like this:
+
+  MyApp.configure do |c|
+    c.description "My app's Description"
+  end
+
+and you long to create APIs like this: 
+
+  MyApp.configure do
+    description "My app's Description"
+  end
+
+Then look no further than this gem. 
+
 = Installation 
 
   # gem install binder
 
 = Use
 
-binder allows you to change the closure in which a proc is executed. This is helpful for anyone developing their own domain specific language in ruby. For more information about proc binding, check out this post I wrote which in turn inspired me to write this gem: http://moonmaster9000.tumblr.com/post/398991873/creating-cleaner-apis
+In truth, there's no magic to this. If you want to change the context in which a block
+gets evaluated, you can use a combination of instance_eval and the fact that you can pass a proc
+to a method as if it were a block by prefixing it with an "&":
+
+  class Dog
+    def do_tricks(&block)
+      instance_eval(&block)
+    end
+
+    def speak
+      puts "ruff!"
+    end
+
+    def fetch
+      puts "fetching...."
+    end
+  end
+
+  Dog.new.do_tricks do
+    speak
+    fetch
+  end
+
+If you're creating a large API like the Rails 3 router, 
+you may find yourself writing a whole lot of mehods that run the block passed to it
+in some other context. 
+
+To dry up the process of creating these methods, you can use the binder gem:
+
+  require 'binder'
+
+  class Dog
+    extend Binder
+    bind :do_tricks, :self
+
+    def speak
+      puts "ruff!"
+    end
+
+    def fetch
+      puts "fetching...."
+    end
+  end
+
+  Dog.new.do_tricks do
+    speak
+    fetch
+  end
+
+First, we passed to bind the name of the method that we wanted to pass our block to; the second
+argument represents the context in which we want our block evaluated. :self, in this case, you 
+represent the instance of the Dog that we're calling "do_tricks" on. We could have alternatively
+passed a symbol representing an instance method or an instance variable. 
+
+If you'd rather not have to extend all of your classes with "Binder" everytime you intend
+to use the "bind" class method, you can require 'binder/pervasive' instead. Note, however, that 
+this will pollute your namespace, so if you've happened to define a "bind" method in any of your 
+existing classes, you may run into issues.
+
+  require 'binder/pervasive'
+
+  class Dog
+    bind :do_tricks, :self
+
+    def speak
+      puts "ruff!"
+    end
+
+    def fetch
+      puts "fetching...."
+    end
+  end
+
+  Dog.new.do_tricks do
+    speak
+    fetch
+  end
 
 
 == Proc#bind_to
 
-The #bind_to method on a proc instance allows you to change the closure in which the proc is run:
+In addition to the "bind" method, binder also adds a "bind_to" instance method to the Proc class. 
+It allows you to change the context in which the proc is run:
   
   require 'binder'
-  # ==> true
   
   def speak
     "why should i?"
@@ -32,9 +124,13 @@ The #bind_to method on a proc instance allows you to change the closure in which
   command.bind_to(Dog.new).call
   # ==> "ruff!"
   
-== Object#tell
 
-The "tell" method is essentially short hand for an instance_eval on an object - it simply presents you with a more human readable way of using this language feature: 
+== "Tell" 
+
+The "Tell" method is essentially short hand for an instance_eval on an object - 
+it simply presents you with a more human readable way of using this language feature: 
+
+  require 'binder/tell'
 
   class Dog
     def speak
@@ -50,17 +146,17 @@ The "tell" method is essentially short hand for an instance_eval on an object - 
 
   # ==> would print "ruff!"
 
-  tell fido do
+  Tell fido do
     speak
   end
 
   # or 
 
-  tell(fido) { speak }
+  Tell(fido) { speak }
 
   # or
 
-  tell(fido, :to) { speak }
+  Tell(fido, :to) { speak }
 
   # ==> would all print "ruff!" - and these are all equivalent to the instance eval above
 
@@ -69,100 +165,6 @@ The "tell" method is essentially short hand for an instance_eval on an object - 
   fido.instance_eval(&commands) 
   # ==> would print "ruff"
 
-  tell fido, commands 
+  Tell fido, commands 
   # ==> would also print "ruff!"
 
-== Object##bind
-
-binder also provides the "#bind" object class method to DRY up your DSL instance methods: 
-
-  class Dog
-    # binds a "do_trick" instance method to the instance of Dog
-    bind :do_trick, :self 
-      
-    def speak
-      "ruff!"
-    end
-  end
-    
-  Dog.new.do_trick { speak }
-  # ==> "ruff!"
-    
-  class Cat
-    # binds a block passed to a "do_trick" instance method to the Cat class
-    bind :do_trick, :class
-    
-    class << self
-      def speak
-        "screw you"
-      end
-    end
-    
-    def speak
-      "bugger off"
-    end
-  end
-    
-  Cat.new.do_trick { speak }
-  # ==> "screw you"
-  
-  class Kitten
-    bind :do_trick, :mother # binds to @mother instance variable
-    
-    def initialize(mom)
-      @mother = mom
-    end
-  end 
-  
-  Kitten.new(Cat).do_trick { speak }
-  # ==> "screw you"
-  
-  Kitten.new(Cat.new).do_trick { speak }
-  # ==> "bugger off"
-  
-  Kitten.new(Dog.new).do_trick { speak }
-  # ==> "ruff!"
-
-== Object##bind_class_method
-  
-Whereas the Object##bind method created instance methods, Object##bind_class_method creates class methods:
-
-  class Cat
-    # binds to Cat class, not an instance of Cat
-    bind :do_trick, :class 
-  
-    class << self
-      def speak
-        "screw you"
-      end
-    end
-    
-    def speak
-      "bugger off"
-    end
-  end
-  
-  class Lion
-    # binds to Lion, since "self" will be evaluated in the context
-    # of a class method
-    bind_class_method :tame, :self 
-    
-    # binds to value returned by method "child"
-    bind_class_method :do_trick, :child 
-    
-    class << self
-      def down_kitty
-        "meow"
-      end
-      
-      def child
-        @child ||= Cat
-      end
-    end
-  end
-     
-  Lion.tame { down_kitty }
-  # ==> "meow"
-    
-  Lion.do_trick { speak }
-  # ==> "screw you"
