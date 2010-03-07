@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'binder/shackles'
+require 'binder/pervasive'
 
 describe Object do
   describe "##bind" do
